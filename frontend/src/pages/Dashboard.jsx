@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Flame, ArrowRight, Sparkles, Trophy, Zap, Activity } from 'lucide-react';
 import GymCanvas from '../components/3d/GymCanvas';
 import RotatingVolumeChart from '../components/charts/RotatingVolumeChart';
+import WorkoutHeatmap from '../components/charts/WorkoutHeatmap';
 import { useAuthStore } from '../context/useAuthStore';
 
 export default function Dashboard() {
@@ -49,12 +50,21 @@ export default function Dashboard() {
           </div>
         </motion.div>
 
+        {/* Workout Streak & Activity Heatmap Component */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <WorkoutHeatmap />
+        </motion.div>
+
         {/* Metric Quick Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
             className="glass-card p-5 rounded-2xl border border-white/10 flex items-center gap-4"
           >
             <div className="w-12 h-12 rounded-xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 flex items-center justify-center text-[#00E5FF]">
@@ -69,7 +79,7 @@ export default function Dashboard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
             className="glass-card p-5 rounded-2xl border border-white/10 flex items-center gap-4"
           >
             <div className="w-12 h-12 rounded-xl bg-[#FF6B35]/10 border border-[#FF6B35]/30 flex items-center justify-center text-[#FF6B35]">
@@ -84,7 +94,7 @@ export default function Dashboard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
             className="glass-card p-5 rounded-2xl border border-white/10 flex items-center gap-4"
           >
             <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
@@ -101,7 +111,7 @@ export default function Dashboard() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
         >
           <RotatingVolumeChart />
         </motion.div>

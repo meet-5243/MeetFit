@@ -4,11 +4,13 @@ const {
   getMuscleGroupStats,
   getExerciseStats,
   getSuggestionStats,
+  getStreakHeatmap,
 } = require('../controllers/statsController');
 const { verifyToken } = require('../middleware/authMiddleware');
 
 router.use(verifyToken);
 
+router.get('/streak-heatmap', getStreakHeatmap);
 router.get('/muscle-group/:id', getMuscleGroupStats);
 router.get('/exercise/:id', getExerciseStats);
 router.get('/suggestion/:exerciseId', getSuggestionStats);

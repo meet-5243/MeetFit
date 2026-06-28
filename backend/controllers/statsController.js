@@ -185,4 +185,86 @@ const getSuggestionStats = async (req, res) => {
   }
 };
 
-module.exports = { getMuscleGroupStats, getExerciseStats, getSuggestionStats };
+// @desc    Get streak and activity heatmap data for user
+// @route   GET /api/stats/streak-heatmap
+const getStreakHeatmap = async (req, res) => {
+  try {
+    const sessions = await Session.find({ userId: req.user._id }).sort({ date: -1 });
+
+    // Map sessions by YYYY-MM-DD
+    const dateMap = {};
+    sessions.forEach((s) => {
+      const dateKey = new Date(s.date).toISOString().split('T')[0];
+      let vol = 0;
+      if (s.sets) {
+        s.sets.forEach((set) => {
+          vol += (set.weight || 0) * (set.reps || 0);
+        });
+      }
+      if (!dateMap[dateKey]) {
+        dateMap[dateKey] = { count: 0, volume: 0 };
+      }
+      dateMap[dateKey].count += 1;
+      dateMap[dateKey].volume += vol;
+    });
+
+    // Calculate streaks
+    const uniqueDates = Object.keys(dateMap).sort().reverse(); // recent to oldest
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let tempStreak = 0;
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    // Check if current streak is active (logged today or yesterday)
+    let checkDate = new Date();
+    if (!dateMap[todayStr] && dateMap[yesterdayStr]) {
+      checkDate = yesterday;
+    }
+
+    if (dateMap[todayStr] || dateMap[yesterdayStr]) {
+      while (true) {
+        const dStr = checkDate.toISOString().split('T')[0];
+        if (dateMap[dStr]) {
+          currentStreak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+    }
+
+    // Calculate longest streak across all history
+    const sortedDatesAsc = Object.keys(dateMap).sort();
+    if (sortedDatesAsc.length > 0) {
+      tempStreak = 1;
+      longestStreak = 1;
+      for (let i = 1; i < sortedDatesAsc.length; i++) {
+        const prev = new Date(sortedDatesAsc[i - 1]);
+        const curr = new Date(sortedDatesAsc[i]);
+        const diffDays = Math.round((curr - prev) / (1000 * 3600 * 24));
+        if (diffDays === 1) {
+          tempStreak++;
+          if (tempStreak > longestStreak) longestStreak = tempStreak;
+        } else if (diffDays > 1) {
+          tempStreak = 1;
+        }
+      }
+    }
+
+    res.json({
+      currentStreak,
+      longestStreak: Math.max(currentStreak, longestStreak),
+      totalWorkouts: sessions.length,
+      dateMap,
+    });
+  } catch (error) {
+    console.error('Error calculating streak heatmap:', error);
+    res.status(500).json({ message: 'Server error calculating streak stats' });
+  }
+};
+
+module.exports = { getMuscleGroupStats, getExerciseStats, getSuggestionStats, getStreakHeatmap };

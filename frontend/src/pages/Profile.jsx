@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, CheckCircle2, AlertCircle, ShieldCheck, Dumbbell, Save } from 'lucide-react';
+import { User, Mail, Lock, CheckCircle2, AlertCircle, ShieldCheck, Dumbbell, Save, Download, FileSpreadsheet, FileText } from 'lucide-react';
 import { useAuthStore } from '../context/useAuthStore';
+import { exportWorkoutCSV, exportWorkoutPDF } from '../utils/exportUtils';
 
 export default function Profile() {
   const { user, unit, updateProfile, updatePassword } = useAuthStore();
@@ -269,6 +270,42 @@ export default function Profile() {
           </div>
         </motion.div>
       </div>
+
+      {/* 3. Export Data Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="bg-[#111118]/90 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6"
+      >
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-mono text-[#00E5FF] uppercase tracking-wider flex items-center gap-1">
+              <Download className="w-3.5 h-3.5" /> Data Backup & Reports
+            </span>
+          </div>
+          <h3 className="font-display text-xl font-bold text-white">Export Workout History & Stats</h3>
+          <p className="text-xs text-gray-400 mt-1">Download your complete progression logs as raw CSV spreadsheet or print-ready PDF summary.</p>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            onClick={exportWorkoutCSV}
+            className="px-4 py-3 rounded-2xl bg-white/5 border border-white/10 hover:border-[#00E5FF]/50 hover:bg-[#00E5FF]/10 text-xs font-semibold text-gray-300 hover:text-white transition-all flex items-center gap-2"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-[#00E5FF]" />
+            CSV Spreadsheet
+          </button>
+
+          <button
+            onClick={() => exportWorkoutPDF(user?.name, unit)}
+            className="px-4 py-3 rounded-2xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 hover:bg-[#00E5FF]/20 text-xs font-semibold text-[#00E5FF] transition-all flex items-center gap-2 shadow-accentGlow"
+          >
+            <FileText className="w-4 h-4" />
+            PDF Progression Report
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 }
