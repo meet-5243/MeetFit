@@ -78,11 +78,21 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* User badge */}
-          <div className="hidden sm:flex items-center gap-2 bg-[#111118] border border-white/10 px-3 py-1.5 rounded-xl">
-            <UserIcon className="w-4 h-4 text-[#00E5FF]" />
-            <span className="text-xs font-semibold text-gray-200">{user?.name || 'Athlete'}</span>
-          </div>
+          {/* User Profile Badge (Clickable link to /profile) */}
+          <Link
+            to="/profile"
+            title="View & Edit Profile"
+            className={`flex items-center gap-2 bg-[#111118] border px-3 py-1.5 rounded-xl transition-all group ${
+              location.pathname === '/profile'
+                ? 'border-[#00E5FF] bg-[#00E5FF]/10 text-white'
+                : 'border-white/10 hover:border-[#00E5FF]/50 text-gray-200'
+            }`}
+          >
+            <UserIcon className="w-4 h-4 text-[#00E5FF] group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-semibold group-hover:text-[#00E5FF] transition-colors">
+              {user?.name || 'Athlete'}
+            </span>
+          </Link>
 
           {/* Logout */}
           <button

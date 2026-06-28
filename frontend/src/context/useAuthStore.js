@@ -25,7 +25,7 @@ export const useAuthStore = create((set, get) => ({
       set({ user: userData, token: accessToken, loading: false });
       return true;
     } catch (err) {
-      const msg = err.response?.data?.message || 'Registration failed';
+      const msg = err.response?.data?.message || (err.message === 'Network Error' ? 'Cannot connect to backend server on port 5000' : 'Registration failed');
       set({ error: msg, loading: false });
       return false;
     }
@@ -43,9 +43,42 @@ export const useAuthStore = create((set, get) => ({
       set({ user: userData, token: accessToken, loading: false });
       return true;
     } catch (err) {
-      const msg = err.response?.data?.message || 'Login failed';
+      const msg = err.response?.data?.message || (err.message === 'Network Error' ? 'Cannot connect to backend server on port 5000' : 'Invalid email or password');
       set({ error: msg, loading: false });
       return false;
+    }
+  },
+
+  updateProfile: async (name, email, unit) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await api.put('/auth/profile', { name, email, unit });
+      const updatedUser = { ...get().user, ...res.data };
+      
+      localStorage.setItem('meetfit_user', JSON.stringify(updatedUser));
+      if (unit) {
+        localStorage.setItem('meetfit_unit', unit);
+      }
+      
+      set({ user: updatedUser, unit: unit || get().unit, loading: false });
+      return { success: true, message: 'Profile updated successfully!' };
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to update profile';
+      set({ error: msg, loading: false });
+      return { success: false, message: msg };
+    }
+  },
+
+  updatePassword: async (currentPassword, newPassword) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await api.put('/auth/password', { currentPassword, newPassword });
+      set({ loading: false });
+      return { success: true, message: res.data.message || 'Password updated successfully!' };
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to update password';
+      set({ error: msg, loading: false });
+      return { success: false, message: msg };
     }
   },
 

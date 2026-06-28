@@ -65,7 +65,7 @@ export default function RotatingVolumeChart() {
 
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % groups.length);
-    }, 2500);
+    }, 6000);
 
     return () => clearInterval(timer);
   }, [groups]);
@@ -244,7 +244,7 @@ export default function RotatingVolumeChart() {
             key={currentIndex}
             initial={{ width: '0%' }}
             animate={{ width: '100%' }}
-            transition={{ duration: 2.5, ease: 'linear' }}
+            transition={{ duration: 6, ease: 'linear' }}
             className="h-full bg-gradient-to-r from-[#00E5FF] to-[#0088FF]"
           />
         </div>

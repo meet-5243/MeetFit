@@ -1,199 +1,233 @@
 import React, { useRef, useState, useEffect, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float } from '@react-three/drei';
+import { Float, Sparkles, MeshWobbleMaterial, Float as DreiFloat } from '@react-three/drei';
 import * as THREE from 'three';
 
-// 1. Dumbbell Component
-function DumbbellMesh({ position, rotationScale = 1 }) {
-  const meshRef = useRef();
-
-  useFrame((state, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += 0.005 * rotationScale;
-      meshRef.current.rotation.x += 0.002 * rotationScale;
-    }
-  });
-
-  return (
-    <group ref={meshRef} position={position} scale={[0.8, 0.8, 0.8]}>
-      {/* Shaft */}
-      <mesh rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.08, 0.08, 1.8, 16]} />
-        <meshStandardMaterial color="#334155" metalness={0.9} roughness={0.2} />
-      </mesh>
-      {/* Weight heads */}
-      <mesh position={[-0.8, 0, 0]}>
-        <sphereGeometry args={[0.35, 16, 16]} />
-        <meshStandardMaterial color="#00E5FF" metalness={0.8} roughness={0.3} emissive="#00E5FF" emissiveIntensity={0.2} />
-      </mesh>
-      <mesh position={[0.8, 0, 0]}>
-        <sphereGeometry args={[0.35, 16, 16]} />
-        <meshStandardMaterial color="#00E5FF" metalness={0.8} roughness={0.3} emissive="#00E5FF" emissiveIntensity={0.2} />
-      </mesh>
-    </group>
-  );
-}
-
-// 2. Barbell with Weight Plates
-function BarbellMesh({ position }) {
-  const meshRef = useRef();
-
-  useFrame((state, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += 0.003;
-      meshRef.current.rotation.z += 0.001;
-    }
-  });
-
-  return (
-    <group ref={meshRef} position={position} scale={[0.7, 0.7, 0.7]}>
-      {/* Bar */}
-      <mesh rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.06, 0.06, 3.5, 16]} />
-        <meshStandardMaterial color="#94A3B8" metalness={0.95} roughness={0.1} />
-      </mesh>
-      {/* Left Plates */}
-      <mesh position={[-1.4, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.6, 0.6, 0.12, 24]} />
-        <meshStandardMaterial color="#FF6B35" metalness={0.6} roughness={0.4} emissive="#FF6B35" emissiveIntensity={0.15} />
-      </mesh>
-      <mesh position={[-1.25, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.5, 0.5, 0.1, 24]} />
-        <meshStandardMaterial color="#1E293B" metalness={0.8} roughness={0.3} />
-      </mesh>
-      {/* Right Plates */}
-      <mesh position={[1.4, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.6, 0.6, 0.12, 24]} />
-        <meshStandardMaterial color="#FF6B35" metalness={0.6} roughness={0.4} emissive="#FF6B35" emissiveIntensity={0.15} />
-      </mesh>
-      <mesh position={[1.25, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.5, 0.5, 0.1, 24]} />
-        <meshStandardMaterial color="#1E293B" metalness={0.8} roughness={0.3} />
-      </mesh>
-    </group>
-  );
-}
-
-// 3. Stylized Figure doing Overhead Press
-function LifterMesh({ position }) {
+// 1. Futuristic High-Detail Metallic Dumbbell
+function CyberDumbbell({ position, scale = 1, speed = 1 }) {
   const groupRef = useRef();
-  const armsRef = useRef();
 
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
+  useFrame((state, delta) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = Math.sin(t * 0.5) * 0.2;
-    }
-    if (armsRef.current) {
-      // Loop overhead press motion (Y axis movement up and down)
-      armsRef.current.position.y = 1.2 + Math.sin(t * 2) * 0.4;
+      groupRef.current.rotation.y += 0.008 * speed;
+      groupRef.current.rotation.x += 0.004 * speed;
+      groupRef.current.rotation.z += 0.002 * speed;
     }
   });
 
   return (
-    <group ref={groupRef} position={position} scale={[0.6, 0.6, 0.6]}>
-      {/* Head */}
-      <mesh position={[0, 1.8, 0]}>
-        <sphereGeometry args={[0.22, 16, 16]} />
-        <meshStandardMaterial color="#00E5FF" metalness={0.5} roughness={0.3} emissive="#00E5FF" emissiveIntensity={0.3} />
+    <group ref={groupRef} position={position} scale={[scale, scale, scale]}>
+      {/* Chrome Knurled Handle */}
+      <mesh rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.09, 0.09, 2.0, 32]} />
+        <meshStandardMaterial color="#E2E8F0" metalness={0.95} roughness={0.1} />
       </mesh>
-      {/* Torso */}
-      <mesh position={[0, 1.0, 0]}>
-        <cylinderGeometry args={[0.3, 0.2, 1.1, 16]} />
-        <meshStandardMaterial color="#1E293B" metalness={0.7} roughness={0.4} />
-      </mesh>
-      {/* Animated Arms & Barbell Press */}
-      <group ref={armsRef} position={[0, 1.2, 0]}>
+
+      {/* Left Plate Stack */}
+      <group position={[-0.9, 0, 0]}>
         <mesh rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.04, 0.04, 2.2, 16]} />
-          <meshStandardMaterial color="#00E5FF" metalness={0.9} emissive="#00E5FF" emissiveIntensity={0.4} />
+          <cylinderGeometry args={[0.45, 0.45, 0.18, 32]} />
+          <meshStandardMaterial color="#0F172A" metalness={0.8} roughness={0.2} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[-0.12, 0, 0]}>
+          <cylinderGeometry args={[0.38, 0.38, 0.12, 32]} />
+          <meshStandardMaterial color="#00E5FF" metalness={0.9} emissive="#00E5FF" emissiveIntensity={0.6} />
+        </mesh>
+      </group>
+
+      {/* Right Plate Stack */}
+      <group position={[0.9, 0, 0]}>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.45, 0.45, 0.18, 32]} />
+          <meshStandardMaterial color="#0F172A" metalness={0.8} roughness={0.2} />
+        </mesh>
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0.12, 0, 0]}>
+          <cylinderGeometry args={[0.38, 0.38, 0.12, 32]} />
+          <meshStandardMaterial color="#00E5FF" metalness={0.9} emissive="#00E5FF" emissiveIntensity={0.6} />
         </mesh>
       </group>
     </group>
   );
 }
 
-// 4. Kettlebell
-function KettlebellMesh({ position }) {
-  const meshRef = useRef();
+// 2. Olympic Barbell with Multi-Colored Heavy Bumper Plates
+function OlympicBarbell({ position }) {
+  const groupRef = useRef();
 
   useFrame(() => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += 0.004;
-      meshRef.current.rotation.z += 0.002;
+    if (groupRef.current) {
+      groupRef.current.rotation.y += 0.004;
+      groupRef.current.rotation.z = Math.sin(Date.now() * 0.001) * 0.15;
     }
   });
 
   return (
-    <group ref={meshRef} position={position} scale={[0.6, 0.6, 0.6]}>
-      {/* Base sphere */}
+    <group ref={groupRef} position={position} scale={[0.75, 0.75, 0.75]}>
+      {/* Solid Steel Bar */}
+      <mesh rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.07, 0.07, 4.2, 32]} />
+        <meshStandardMaterial color="#CBD5E1" metalness={0.98} roughness={0.05} />
+      </mesh>
+
+      {/* Left Heavy Plates */}
+      <group position={[-1.7, 0, 0]}>
+        {/* 25kg Red Bumper */}
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0, 0]}>
+          <cylinderGeometry args={[0.75, 0.75, 0.15, 32]} />
+          <meshStandardMaterial color="#EF4444" metalness={0.4} roughness={0.3} emissive="#EF4444" emissiveIntensity={0.2} />
+        </mesh>
+        {/* 20kg Blue Bumper */}
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[-0.18, 0, 0]}>
+          <cylinderGeometry args={[0.65, 0.65, 0.14, 32]} />
+          <meshStandardMaterial color="#3B82F6" metalness={0.5} roughness={0.3} emissive="#3B82F6" emissiveIntensity={0.2} />
+        </mesh>
+        {/* Gold PR Plate */}
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[-0.32, 0, 0]}>
+          <cylinderGeometry args={[0.5, 0.5, 0.1, 32]} />
+          <meshStandardMaterial color="#FFD700" metalness={0.9} roughness={0.1} emissive="#FFD700" emissiveIntensity={0.4} />
+        </mesh>
+      </group>
+
+      {/* Right Heavy Plates */}
+      <group position={[1.7, 0, 0]}>
+        {/* 25kg Red Bumper */}
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0, 0]}>
+          <cylinderGeometry args={[0.75, 0.75, 0.15, 32]} />
+          <meshStandardMaterial color="#EF4444" metalness={0.4} roughness={0.3} emissive="#EF4444" emissiveIntensity={0.2} />
+        </mesh>
+        {/* 20kg Blue Bumper */}
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0.18, 0, 0]}>
+          <cylinderGeometry args={[0.65, 0.65, 0.14, 32]} />
+          <meshStandardMaterial color="#3B82F6" metalness={0.5} roughness={0.3} emissive="#3B82F6" emissiveIntensity={0.2} />
+        </mesh>
+        {/* Gold PR Plate */}
+        <mesh rotation={[0, 0, Math.PI / 2]} position={[0.32, 0, 0]}>
+          <cylinderGeometry args={[0.5, 0.5, 0.1, 32]} />
+          <meshStandardMaterial color="#FFD700" metalness={0.9} roughness={0.1} emissive="#FFD700" emissiveIntensity={0.4} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+// 3. Holographic Lifter Figure with Animated Overhead Press
+function CyberLifter({ position }) {
+  const groupRef = useRef();
+  const barPressRef = useRef();
+
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (groupRef.current) {
+      groupRef.current.rotation.y = Math.sin(t * 0.4) * 0.3;
+    }
+    if (barPressRef.current) {
+      barPressRef.current.position.y = 1.3 + Math.abs(Math.sin(t * 2.2)) * 0.6;
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={position} scale={[0.7, 0.7, 0.7]}>
+      {/* Holographic Glowing Head */}
+      <mesh position={[0, 2.0, 0]}>
+        <icosahedronGeometry args={[0.28, 2]} />
+        <meshStandardMaterial color="#00E5FF" metalness={0.9} roughness={0.1} emissive="#00E5FF" emissiveIntensity={0.8} wireframe />
+      </mesh>
+
+      {/* Cyber Torso */}
+      <mesh position={[0, 1.1, 0]}>
+        <cylinderGeometry args={[0.38, 0.22, 1.2, 6]} />
+        <meshStandardMaterial color="#1E293B" metalness={0.8} roughness={0.2} />
+      </mesh>
+
+      {/* Dynamic Overhead Barbell Press */}
+      <group ref={barPressRef} position={[0, 1.3, 0]}>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.05, 0.05, 2.6, 16]} />
+          <meshStandardMaterial color="#00E5FF" emissive="#00E5FF" emissiveIntensity={1} />
+        </mesh>
+        {/* Glowing End Weights */}
+        <mesh position={[-1.3, 0, 0]}>
+          <sphereGeometry args={[0.22, 16, 16]} />
+          <meshStandardMaterial color="#FF6B35" emissive="#FF6B35" emissiveIntensity={0.8} />
+        </mesh>
+        <mesh position={[1.3, 0, 0]}>
+          <sphereGeometry args={[0.22, 16, 16]} />
+          <meshStandardMaterial color="#FF6B35" emissive="#FF6B35" emissiveIntensity={0.8} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+// 4. Kinetic Neon Kettlebell
+function KineticKettlebell({ position }) {
+  const groupRef = useRef();
+
+  useFrame(() => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += 0.006;
+      groupRef.current.rotation.x += 0.003;
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={position} scale={[0.65, 0.65, 0.65]}>
+      {/* Neon Base Sphere */}
       <mesh position={[0, 0, 0]}>
-        <sphereGeometry args={[0.45, 20, 20]} />
-        <meshStandardMaterial color="#00E5FF" metalness={0.8} roughness={0.2} emissive="#00E5FF" emissiveIntensity={0.25} />
+        <sphereGeometry args={[0.55, 32, 32]} />
+        <meshStandardMaterial color="#FF6B35" metalness={0.9} roughness={0.2} emissive="#FF6B35" emissiveIntensity={0.5} />
       </mesh>
-      {/* Handle arc */}
-      <mesh position={[0, 0.45, 0]} rotation={[0, 0, 0]}>
-        <torusGeometry args={[0.25, 0.06, 16, 32, Math.PI]} />
-        <meshStandardMaterial color="#334155" metalness={0.9} roughness={0.3} />
+      {/* Orbiting Neon Ring */}
+      <mesh rotation={[Math.PI / 4, 0, 0]}>
+        <torusGeometry args={[0.75, 0.03, 16, 64]} />
+        <meshStandardMaterial color="#00E5FF" emissive="#00E5FF" emissiveIntensity={1} />
+      </mesh>
+      {/* Heavy Handle */}
+      <mesh position={[0, 0.55, 0]}>
+        <torusGeometry args={[0.32, 0.08, 16, 32, Math.PI]} />
+        <meshStandardMaterial color="#0F172A" metalness={0.9} roughness={0.1} />
       </mesh>
     </group>
   );
 }
 
-// 5. Weight Plate
-function WeightPlateMesh({ position }) {
+// 5. Floating Energy Gems / Crystals
+function EnergyCrystal({ position, color = "#00E5FF" }) {
   const meshRef = useRef();
 
   useFrame(() => {
     if (meshRef.current) {
-      meshRef.current.rotation.x += 0.003;
-      meshRef.current.rotation.y += 0.005;
+      meshRef.current.rotation.x += 0.01;
+      meshRef.current.rotation.y += 0.015;
     }
   });
 
   return (
-    <group ref={meshRef} position={position} scale={[0.7, 0.7, 0.7]}>
-      <mesh rotation={[Math.PI / 3, 0, 0]}>
-        <torusGeometry args={[0.6, 0.25, 16, 32]} />
-        <meshStandardMaterial color="#111118" metalness={0.9} roughness={0.3} emissive="#00E5FF" emissiveIntensity={0.15} />
-      </mesh>
-    </group>
+    <mesh ref={meshRef} position={position} scale={[0.3, 0.45, 0.3]}>
+      <octahedronGeometry args={[1, 0]} />
+      <meshStandardMaterial color={color} metalness={0.9} roughness={0.1} emissive={color} emissiveIntensity={0.7} transparent opacity={0.85} />
+    </mesh>
   );
 }
 
-// Chalk Dust Particles
-function ChalkParticles() {
-  const count = 70;
-  const pointsRef = useRef();
+// Scene Lighting & Pulsing Ambient Effect
+function DynamicLights() {
+  const lightRef = useRef();
 
-  const [positions] = useState(() => {
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 16;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 12;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 10;
-    }
-    return pos;
-  });
-
-  useFrame(() => {
-    if (pointsRef.current) {
-      pointsRef.current.rotation.y += 0.0005;
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (lightRef.current) {
+      lightRef.current.intensity = 1.5 + Math.sin(t * 1.5) * 0.5;
     }
   });
 
   return (
-    <points ref={pointsRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={count}
-          array={positions}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial size={0.05} color="#00E5FF" transparent opacity={0.4} />
-    </points>
+    <>
+      <ambientLight intensity={0.4} />
+      <pointLight ref={lightRef} position={[8, 8, 8]} color="#00E5FF" intensity={2} distance={20} />
+      <pointLight position={[-8, -8, -4]} color="#FF6B35" intensity={1.8} distance={20} />
+      <pointLight position={[0, 10, -5]} color="#9333EA" intensity={1.2} distance={25} />
+    </>
   );
 }
 
@@ -216,34 +250,42 @@ export default function GymCanvas() {
   }
 
   return (
-    <div className="absolute inset-0 z-0 opacity-80 pointer-events-none">
-      <Canvas camera={{ position: [0, 0, 7], fov: 60 }}>
-        <ambientLight intensity={0.6} />
-        <pointLight position={[10, 10, 10]} intensity={1.2} color="#00E5FF" />
-        <pointLight position={[-10, -10, -5]} intensity={0.8} color="#FF6B35" />
-        
+    <div className="absolute inset-0 z-0 opacity-90 pointer-events-none overflow-hidden">
+      <Canvas camera={{ position: [0, 0, 8], fov: 55 }}>
+        <DynamicLights />
+
         <Suspense fallback={null}>
-          <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1}>
-            <DumbbellMesh position={[-3.5, 2, -1]} rotationScale={1} />
+          {/* Floating Drei Particle Systems */}
+          <Sparkles count={120} scale={[15, 12, 10]} size={3} speed={0.4} color="#00E5FF" opacity={0.6} />
+          <Sparkles count={60} scale={[12, 10, 8]} size={4} speed={0.6} color="#FF6B35" opacity={0.5} />
+
+          {/* 3D Floating Gym Objects with Drei Float wrapper */}
+          <Float speed={2.2} rotationIntensity={0.8} floatIntensity={1.4}>
+            <CyberDumbbell position={[-4.2, 2.2, -1]} scale={0.85} speed={1.2} />
           </Float>
 
-          <Float speed={1.2} rotationIntensity={0.4} floatIntensity={0.8}>
-            <BarbellMesh position={[3.8, 1.5, -2]} />
+          <Float speed={1.8} rotationIntensity={0.6} floatIntensity={1.1}>
+            <OlympicBarbell position={[4.5, 1.8, -2]} />
           </Float>
 
-          <Float speed={1.8} rotationIntensity={0.6} floatIntensity={1.2}>
-            <LifterMesh position={[0, -1.8, -1]} />
+          <Float speed={2.5} rotationIntensity={0.9} floatIntensity={1.6}>
+            <CyberLifter position={[0, -2.0, -1]} />
           </Float>
 
-          <Float speed={1.4} rotationIntensity={0.5} floatIntensity={0.9}>
-            <KettlebellMesh position={[-3.8, -2, -1.5]} />
+          <Float speed={2.0} rotationIntensity={0.7} floatIntensity={1.3}>
+            <KineticKettlebell position={[-4.5, -2.2, -1.5]} />
           </Float>
 
-          <Float speed={1.6} rotationIntensity={0.7} floatIntensity={1.1}>
-            <WeightPlateMesh position={[3.5, -2.2, -1]} />
+          {/* Additional Floating Energy Gems */}
+          <Float speed={3.0} rotationIntensity={1.2} floatIntensity={1.8}>
+            <EnergyCrystal position={[3.8, -2.4, -1]} color="#FFD700" />
           </Float>
-
-          <ChalkParticles />
+          <Float speed={2.8} rotationIntensity={1.0} floatIntensity={1.5}>
+            <EnergyCrystal position={[-2.2, 3.2, -2]} color="#00E5FF" />
+          </Float>
+          <Float speed={2.4} rotationIntensity={1.1} floatIntensity={1.6}>
+            <EnergyCrystal position={[2.2, 3.5, -2.5]} color="#FF6B35" />
+          </Float>
         </Suspense>
       </Canvas>
     </div>

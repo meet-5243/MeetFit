@@ -143,6 +143,7 @@ const getExerciseStats = async (req, res) => {
         e1RM: maxE1RM,
         bestWeight: maxWeight,
         bestReps: maxReps,
+        sets: sess.sets,
       };
     });
 

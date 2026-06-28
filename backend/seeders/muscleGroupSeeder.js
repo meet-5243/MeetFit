@@ -14,8 +14,6 @@ const muscleGroups = [
   { name: 'Biceps', slug: 'biceps', icon: 'Biceps', bodyPart: 'Arms' },
   { name: 'Triceps', slug: 'triceps', icon: 'Dumbbell', bodyPart: 'Arms' },
   { name: 'Legs', slug: 'legs', icon: 'Activity', bodyPart: 'Lower Body' },
-  { name: 'Core', slug: 'core', icon: 'Target', bodyPart: 'Midsection' },
-  { name: 'Glutes', slug: 'glutes', icon: 'Award', bodyPart: 'Lower Body' },
 ];
 
 const seedDB = async () => {
@@ -27,7 +25,7 @@ const seedDB = async () => {
     console.log('Cleared existing muscle groups.');
 
     await MuscleGroup.insertMany(muscleGroups);
-    console.log('Successfully seeded 8 Muscle Groups!');
+    console.log('Successfully seeded 6 Muscle Groups (removed Core & Glutes)!');
 
     process.exit();
   } catch (error) {

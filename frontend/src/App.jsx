@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import MuscleGroups from './pages/MuscleGroups';
 import MuscleGroupDetail from './pages/MuscleGroupDetail';
 import ExerciseDetail from './pages/ExerciseDetail';
+import Profile from './pages/Profile';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         {/* Protected Application Routes */}
         <Route element={<ProtectedLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/muscles" element={<MuscleGroups />} />
           <Route path="/muscles/:groupId" element={<MuscleGroupDetail />} />
           <Route path="/muscles/:groupId/exercises/:exerciseId" element={<ExerciseDetail />} />
