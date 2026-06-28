@@ -185,6 +185,15 @@ const getSuggestionStats = async (req, res) => {
   }
 };
 
+// Helper to format date in YYYY-MM-DD
+const formatDateKey = (date) => {
+  const d = new Date(date);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
 // @desc    Get streak and activity heatmap data for user
 // @route   GET /api/stats/streak-heatmap
 const getStreakHeatmap = async (req, res) => {
@@ -194,7 +203,7 @@ const getStreakHeatmap = async (req, res) => {
     // Map sessions by YYYY-MM-DD
     const dateMap = {};
     sessions.forEach((s) => {
-      const dateKey = new Date(s.date).toISOString().split('T')[0];
+      const dateKey = formatDateKey(s.date);
       let vol = 0;
       if (s.sets) {
         s.sets.forEach((set) => {
@@ -208,50 +217,70 @@ const getStreakHeatmap = async (req, res) => {
       dateMap[dateKey].volume += vol;
     });
 
-    // Calculate streaks
-    const uniqueDates = Object.keys(dateMap).sort().reverse(); // recent to oldest
+    // Calculate Current Streak with Sunday Rest Day preservation
     let currentStreak = 0;
-    let longestStreak = 0;
-    let tempStreak = 0;
+    let d = new Date();
+    let dStr = formatDateKey(d);
 
-    const todayStr = new Date().toISOString().split('T')[0];
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    // If today has no workout yet, check if streak is alive from yesterday or Saturday (if yesterday was Sunday)
+    if (!dateMap[dStr]) {
+      const yesterday = new Date(d);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yStr = formatDateKey(yesterday);
 
-    // Check if current streak is active (logged today or yesterday)
-    let checkDate = new Date();
-    if (!dateMap[todayStr] && dateMap[yesterdayStr]) {
-      checkDate = yesterday;
-    }
-
-    if (dateMap[todayStr] || dateMap[yesterdayStr]) {
-      while (true) {
-        const dStr = checkDate.toISOString().split('T')[0];
-        if (dateMap[dStr]) {
-          currentStreak++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          break;
+      if (dateMap[yStr]) {
+        d = yesterday;
+      } else if (yesterday.getDay() === 0) {
+        // Yesterday was Sunday and had no workout. Check Saturday!
+        const saturday = new Date(yesterday);
+        saturday.setDate(saturday.getDate() - 1);
+        const satStr = formatDateKey(saturday);
+        if (dateMap[satStr]) {
+          d = saturday;
         }
       }
     }
 
-    // Calculate longest streak across all history
+    // Walk backwards day by day to count current streak
+    const checkLoopDate = new Date(d);
+    while (true) {
+      const key = formatDateKey(checkLoopDate);
+      if (dateMap[key]) {
+        currentStreak++;
+        checkLoopDate.setDate(checkLoopDate.getDate() - 1);
+      } else if (checkLoopDate.getDay() === 0) {
+        // Sunday is rest day -> skip without breaking streak
+        checkLoopDate.setDate(checkLoopDate.getDate() - 1);
+      } else {
+        // Missed non-Sunday workout day -> streak breaks
+        break;
+      }
+    }
+
+    // Calculate Longest Streak across history with Sunday Rest Day preservation
+    let longestStreak = 0;
+    let tempStreak = 0;
     const sortedDatesAsc = Object.keys(dateMap).sort();
+
     if (sortedDatesAsc.length > 0) {
-      tempStreak = 1;
-      longestStreak = 1;
-      for (let i = 1; i < sortedDatesAsc.length; i++) {
-        const prev = new Date(sortedDatesAsc[i - 1]);
-        const curr = new Date(sortedDatesAsc[i]);
-        const diffDays = Math.round((curr - prev) / (1000 * 3600 * 24));
-        if (diffDays === 1) {
+      const minDateParts = sortedDatesAsc[0].split('-').map(Number);
+      const maxDateParts = sortedDatesAsc[sortedDatesAsc.length - 1].split('-').map(Number);
+
+      let curr = new Date(minDateParts[0], minDateParts[1] - 1, minDateParts[2]);
+      const maxDate = new Date(maxDateParts[0], maxDateParts[1] - 1, maxDateParts[2]);
+
+      while (curr <= maxDate) {
+        const key = formatDateKey(curr);
+        if (dateMap[key]) {
           tempStreak++;
           if (tempStreak > longestStreak) longestStreak = tempStreak;
-        } else if (diffDays > 1) {
-          tempStreak = 1;
+        } else if (curr.getDay() === 0) {
+          // Sunday rest day -> preserve streak
+        } else {
+          // Missed workout day -> reset streak
+          tempStreak = 0;
         }
+        curr.setDate(curr.getDate() + 1);
       }
     }
 
