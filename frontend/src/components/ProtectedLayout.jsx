@@ -19,7 +19,7 @@ export default function ProtectedLayout() {
   return (
     <div className="min-h-screen flex flex-col bg-[#0A0A0F] text-[#F0F0F5] relative selection:bg-[#00E5FF]/30">
       <Navbar />
-      <main className="flex-1 relative z-10">
+      <main className="flex-1 relative z-10 pb-20 md:pb-0">
         <Outlet />
       </main>
     </div>

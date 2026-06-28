@@ -13,6 +13,7 @@ const muscleGroups = [
   { name: 'Shoulders', slug: 'shoulders', icon: 'Zap', bodyPart: 'Upper Body' },
   { name: 'Biceps', slug: 'biceps', icon: 'Biceps', bodyPart: 'Arms' },
   { name: 'Triceps', slug: 'triceps', icon: 'Dumbbell', bodyPart: 'Arms' },
+  { name: 'Forearms', slug: 'forearms', icon: 'Dumbbell', bodyPart: 'Arms' },
   { name: 'Legs', slug: 'legs', icon: 'Activity', bodyPart: 'Lower Body' },
 ];
 

@@ -243,48 +243,43 @@ export default function GymCanvas() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  if (isMobile) {
-    return (
-      <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#0A0A0F] via-[#111118] to-[#00E5FF]/10 pointer-events-none" />
-    );
-  }
-
   return (
     <div className="absolute inset-0 z-0 opacity-90 pointer-events-none overflow-hidden">
-      <Canvas camera={{ position: [0, 0, 8], fov: 55 }}>
+      <Canvas camera={{ position: [0, 0, isMobile ? 10 : 8], fov: isMobile ? 65 : 55 }}>
         <DynamicLights />
 
         <Suspense fallback={null}>
           {/* Floating Drei Particle Systems */}
-          <Sparkles count={120} scale={[15, 12, 10]} size={3} speed={0.4} color="#00E5FF" opacity={0.6} />
-          <Sparkles count={60} scale={[12, 10, 8]} size={4} speed={0.6} color="#FF6B35" opacity={0.5} />
+          <Sparkles count={isMobile ? 50 : 120} scale={[15, 12, 10]} size={isMobile ? 2 : 3} speed={0.4} color="#00E5FF" opacity={0.6} />
+          <Sparkles count={isMobile ? 25 : 60} scale={[12, 10, 8]} size={isMobile ? 3 : 4} speed={0.6} color="#FF6B35" opacity={0.5} />
 
           {/* 3D Floating Gym Objects with Drei Float wrapper */}
           <Float speed={2.2} rotationIntensity={0.8} floatIntensity={1.4}>
-            <CyberDumbbell position={[-4.2, 2.2, -1]} scale={0.85} speed={1.2} />
+            <CyberDumbbell position={isMobile ? [0, 2.5, -2] : [-4.2, 2.2, -1]} scale={isMobile ? 0.6 : 0.85} speed={1.2} />
           </Float>
 
-          <Float speed={1.8} rotationIntensity={0.6} floatIntensity={1.1}>
-            <OlympicBarbell position={[4.5, 1.8, -2]} />
-          </Float>
+          {!isMobile && (
+            <>
+              <Float speed={1.8} rotationIntensity={0.6} floatIntensity={1.1}>
+                <OlympicBarbell position={[4.5, 1.8, -2]} />
+              </Float>
 
-          <Float speed={2.5} rotationIntensity={0.9} floatIntensity={1.6}>
-            <CyberLifter position={[0, -2.0, -1]} />
-          </Float>
+              <Float speed={2.5} rotationIntensity={0.9} floatIntensity={1.6}>
+                <CyberLifter position={[0, -2.0, -1]} />
+              </Float>
+            </>
+          )}
 
           <Float speed={2.0} rotationIntensity={0.7} floatIntensity={1.3}>
-            <KineticKettlebell position={[-4.5, -2.2, -1.5]} />
+            <KineticKettlebell position={isMobile ? [0, -2.8, -2] : [-4.5, -2.2, -1.5]} scale={isMobile ? 0.45 : 0.65} />
           </Float>
 
           {/* Additional Floating Energy Gems */}
           <Float speed={3.0} rotationIntensity={1.2} floatIntensity={1.8}>
-            <EnergyCrystal position={[3.8, -2.4, -1]} color="#FFD700" />
+            <EnergyCrystal position={isMobile ? [2.0, -1.5, -2] : [3.8, -2.4, -1]} color="#FFD700" />
           </Float>
           <Float speed={2.8} rotationIntensity={1.0} floatIntensity={1.5}>
-            <EnergyCrystal position={[-2.2, 3.2, -2]} color="#00E5FF" />
-          </Float>
-          <Float speed={2.4} rotationIntensity={1.1} floatIntensity={1.6}>
-            <EnergyCrystal position={[2.2, 3.5, -2.5]} color="#FF6B35" />
+            <EnergyCrystal position={isMobile ? [-2.0, 1.5, -2] : [-2.2, 3.2, -2]} color="#00E5FF" />
           </Float>
         </Suspense>
       </Canvas>
