@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Flame, Trophy, Calendar, Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { Flame, Trophy, Calendar, Download, FileSpreadsheet, FileText, Activity, CalendarDays } from 'lucide-react';
 import api from '../../api/axios';
 import { exportWorkoutCSV, exportWorkoutPDF } from '../../utils/exportUtils';
 import { useAuthStore } from '../../context/useAuthStore';
@@ -52,9 +52,10 @@ export default function WorkoutHeatmap() {
       {/* Top Bar: Header + Export Actions */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 relative z-10">
         <div>
-          <span className="text-xs font-mono text-[#00E5FF] uppercase tracking-wider flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5" /> Consistency Tracker
-          </span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 text-[#00E5FF] text-xs font-mono font-bold shadow-accentGlow mb-1">
+            <CalendarDays className="w-4 h-4 text-[#00E5FF] animate-pulse" />
+            <span>Consistency Tracker</span>
+          </div>
           <h2 className="font-display text-2xl md:text-3xl font-bold text-white tracking-wide mt-0.5">
             WORKOUT STREAK & ACTIVITY
           </h2>
