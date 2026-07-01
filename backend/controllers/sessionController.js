@@ -12,6 +12,7 @@ const getSessions = async (req, res) => {
     }
 
     const sessions = await Session.find(query)
+      .populate('exerciseId')
       .sort({ date: -1 })
       .limit(parseInt(limit, 10));
 

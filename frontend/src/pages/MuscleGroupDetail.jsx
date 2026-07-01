@@ -34,7 +34,7 @@ export default function MuscleGroupDetail() {
       setExercises(exRes.data);
     } catch (e) {
       console.error('Failed to load exercise details', e);
-    } fontSettled: {
+    } finally {
       setLoading(false);
     }
   };

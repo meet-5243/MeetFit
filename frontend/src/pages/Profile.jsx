@@ -3,9 +3,11 @@ import { motion } from 'framer-motion';
 import { User, Mail, Lock, CheckCircle2, AlertCircle, ShieldCheck, Dumbbell, Save, Download, FileSpreadsheet, FileText } from 'lucide-react';
 import { useAuthStore } from '../context/useAuthStore';
 import { exportWorkoutCSV, exportWorkoutPDF } from '../utils/exportUtils';
+import ExportPDFModal from '../components/export/ExportPDFModal';
 
 export default function Profile() {
   const { user, unit, updateProfile, updatePassword } = useAuthStore();
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   // Profile Form States
   const [name, setName] = useState(user?.name || '');
@@ -298,7 +300,7 @@ export default function Profile() {
           </button>
 
           <button
-            onClick={() => exportWorkoutPDF(user?.name, unit)}
+            onClick={() => setIsExportModalOpen(true)}
             className="px-4 py-3 rounded-2xl bg-[#00E5FF]/10 border border-[#00E5FF]/30 hover:bg-[#00E5FF]/20 text-xs font-semibold text-[#00E5FF] transition-all flex items-center gap-2 shadow-accentGlow"
           >
             <FileText className="w-4 h-4" />
@@ -306,6 +308,8 @@ export default function Profile() {
           </button>
         </div>
       </motion.div>
+
+      <ExportPDFModal isOpen={isExportModalOpen} onClose={() => setIsExportModalOpen(false)} />
     </div>
   );
 }

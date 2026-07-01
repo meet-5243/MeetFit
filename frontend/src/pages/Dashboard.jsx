@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Flame, ArrowRight, Sparkles, Trophy, Zap, Activity } from 'lucide-react';
+import { Flame, ArrowRight, Sparkles, Trophy, Zap, Activity, FileText } from 'lucide-react';
 import GymCanvas from '../components/3d/GymCanvas';
 import RotatingVolumeChart from '../components/charts/RotatingVolumeChart';
 import WorkoutHeatmap from '../components/charts/WorkoutHeatmap';
 import { useAuthStore } from '../context/useAuthStore';
+import ExportPDFModal from '../components/export/ExportPDFModal';
 
 export default function Dashboard() {
   const { user } = useAuthStore();
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   return (
     <div className="relative min-h-[calc(100vh-65px)] overflow-hidden">
@@ -38,7 +40,15 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="flex items-center gap-4 shrink-0">
+          <div className="flex flex-wrap items-center gap-4 shrink-0">
+            <button
+              onClick={() => setIsExportModalOpen(true)}
+              className="px-6 py-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[#00E5FF]/50 hover:bg-[#00E5FF]/10 text-white font-bold text-sm transition-all flex items-center gap-2"
+            >
+              <FileText className="w-5 h-5 text-[#00E5FF]" />
+              Export PDF Report
+            </button>
+            
             <Link
               to="/muscles"
               className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#00E5FF] to-[#0088FF] text-[#0A0A0F] font-bold text-sm shadow-accentGlow hover:scale-105 transition-all flex items-center gap-2"
@@ -116,6 +126,8 @@ export default function Dashboard() {
           <RotatingVolumeChart />
         </motion.div>
       </div>
+
+      <ExportPDFModal isOpen={isExportModalOpen} onClose={() => setIsExportModalOpen(false)} />
     </div>
   );
 }
