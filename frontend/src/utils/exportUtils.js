@@ -84,7 +84,7 @@ export const exportWorkoutPDF = async (userName = 'Athlete', unit = 'kg') => {
         <head>
           <title>MeetFit Progression Summary - ${userName}</title>
           <style>
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0A0A0F; color: #F0F0F5; padding: 40px; }
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0A0A0F; color: #F0F0F5; padding: 100px 40px 40px 40px; }
             .header { border-bottom: 2px solid #00E5FF; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
             .logo { font-size: 28px; font-weight: bold; color: #fff; letter-spacing: 2px; }
             .logo span { color: #00E5FF; }
@@ -98,7 +98,50 @@ export const exportWorkoutPDF = async (userName = 'Athlete', unit = 'kg') => {
             th { background: #181824; color: #00E5FF; font-size: 12px; text-transform: uppercase; }
             tr:nth-child(even) { background: rgba(255,255,255,0.02); }
             .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #64748B; }
+            .no-print {
+              background: #111118;
+              border-bottom: 1px solid rgba(255,255,255,0.1);
+              padding: 15px 40px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              position: fixed;
+              top: 0;
+              left: 0;
+              right: 0;
+              z-index: 1000;
+            }
+            .no-print-btn {
+              background: linear-gradient(135deg, #00E5FF 0%, #0088FF 100%);
+              border: none;
+              color: #0A0A0F;
+              padding: 8px 16px;
+              border-radius: 8px;
+              font-weight: bold;
+              cursor: pointer;
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              transition: all 0.2s;
+            }
+            .no-print-btn:hover {
+              opacity: 0.9;
+              transform: translateY(-1px);
+            }
+            .no-print-btn-secondary {
+              background: rgba(255,255,255,0.05);
+              border: 1px solid rgba(255,255,255,0.1);
+              color: #fff;
+              padding: 8px 16px;
+              border-radius: 8px;
+              font-weight: bold;
+              cursor: pointer;
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              transition: all 0.2s;
+            }
+            .no-print-btn-secondary:hover {
+              background: rgba(255,255,255,0.1);
+            }
             @media print {
+              .no-print { display: none !important; }
               body { background: #fff; color: #000; padding: 20px; }
               .card { border: 1px solid #ccc; background: #f8fafc; }
               .card-val { color: #0284c7; }
@@ -108,6 +151,19 @@ export const exportWorkoutPDF = async (userName = 'Athlete', unit = 'kg') => {
           </style>
         </head>
         <body>
+          <div class="no-print">
+            <div style="font-size: 14px; color: #94A3B8; font-weight: 500; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+              ⚡ MeetFit Pre-print Preview — Click Print and select "Save as PDF" to save.
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button onclick="window.print()" class="no-print-btn">
+                Print / Save PDF
+              </button>
+              <button onclick="window.close()" class="no-print-btn-secondary">
+                Close Preview
+              </button>
+            </div>
+          </div>
           <div class="header">
             <div>
               <div class="logo">MEET<span>FIT</span></div>
@@ -324,7 +380,7 @@ export const exportCustomPDF = async (
           <title>MeetFit Custom Progression Report - ${userName}</title>
           <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
           <style>
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0A0A0F; color: #F0F0F5; padding: 40px; }
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0A0A0F; color: #F0F0F5; padding: 100px 40px 40px 40px; }
             .header { border-bottom: 2px solid #00E5FF; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
             .logo { font-size: 28px; font-weight: bold; color: #fff; letter-spacing: 2px; }
             .logo span { color: #00E5FF; }
@@ -341,7 +397,50 @@ export const exportCustomPDF = async (
             .page-break { page-break-after: always; }
             .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #64748B; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; }
             
+            .no-print {
+              background: #111118;
+              border-bottom: 1px solid rgba(255,255,255,0.1);
+              padding: 15px 40px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              position: fixed;
+              top: 0;
+              left: 0;
+              right: 0;
+              z-index: 1000;
+            }
+            .no-print-btn {
+              background: linear-gradient(135deg, #00E5FF 0%, #0088FF 100%);
+              border: none;
+              color: #0A0A0F;
+              padding: 8px 16px;
+              border-radius: 8px;
+              font-weight: bold;
+              cursor: pointer;
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              transition: all 0.2s;
+            }
+            .no-print-btn:hover {
+              opacity: 0.9;
+              transform: translateY(-1px);
+            }
+            .no-print-btn-secondary {
+              background: rgba(255,255,255,0.05);
+              border: 1px solid rgba(255,255,255,0.1);
+              color: #fff;
+              padding: 8px 16px;
+              border-radius: 8px;
+              font-weight: bold;
+              cursor: pointer;
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              transition: all 0.2s;
+            }
+            .no-print-btn-secondary:hover {
+              background: rgba(255,255,255,0.1);
+            }
             @media print {
+              .no-print { display: none !important; }
               body { background: #fff; color: #000; padding: 20px; }
               .card { border: 1px solid #ccc; background: #f8fafc; }
               .card-val { color: #0284c7; }
@@ -351,6 +450,19 @@ export const exportCustomPDF = async (
           </style>
         </head>
         <body>
+          <div class="no-print">
+            <div style="font-size: 14px; color: #94A3B8; font-weight: 500; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+              ⚡ MeetFit Pre-print Preview — Click Print and select "Save as PDF" to save.
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button onclick="window.print()" class="no-print-btn">
+                Print / Save PDF
+              </button>
+              <button onclick="window.close()" class="no-print-btn-secondary">
+                Close Preview
+              </button>
+            </div>
+          </div>
           <div class="header">
             <div>
               <div class="logo">MEET<span>FIT</span></div>
@@ -430,7 +542,7 @@ export const exportCustomPDF = async (
           </div>
 
           <script>
-            const rawChartData = \${JSON.stringify(chartConfigData)};
+            const rawChartData = ${JSON.stringify(chartConfigData)};
             
             const gridColor = 'rgba(255, 255, 255, 0.1)';
             const textColor = '#94A3B8';
