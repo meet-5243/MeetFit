@@ -8,27 +8,53 @@ import AITargetCard from '../components/ai/AITargetCard';
 import ExerciseProgressCharts from '../components/charts/ExerciseProgressCharts';
 import { useAuthStore } from '../context/useAuthStore';
 
-// Web Audio API Synthesizer for Digital Beep
-const playBeepSequence = () => {
+// Web Audio API Synthesizer for a rich, premium chime sound + phone vibration
+const playRestTimerAlert = () => {
+  // 1. Trigger Vibration (3 pulses: vibrate 300ms, pause 150ms, vibrate 300ms, pause 150ms, vibrate 300ms)
+  if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate([300, 150, 300, 150, 300]);
+    } catch (e) {
+      console.warn('Vibration API blocked or not supported:', e);
+    }
+  }
+
+  // 2. Play Premium Ascending Chime
   try {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const playSingleBeep = (delay, freq, duration) => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
-      gain.gain.setValueAtTime(0.4, audioCtx.currentTime + delay);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + duration - 0.05);
-      osc.start(audioCtx.currentTime + delay);
-      osc.stop(audioCtx.currentTime + delay + duration);
+    
+    const playChimeNote = (startTime, freq, duration, volume = 0.3) => {
+      const osc1 = audioCtx.createOscillator(); // Main warm body (triangle)
+      const osc2 = audioCtx.createOscillator(); // Bright overtone (sine)
+      const gainNode = audioCtx.createGain();
+      
+      osc1.type = 'triangle';
+      osc1.frequency.setValueAtTime(freq, audioCtx.currentTime + startTime);
+      
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(freq * 2, audioCtx.currentTime + startTime); // Octave overtone
+      
+      osc1.connect(gainNode);
+      osc2.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      // Volume envelope: rapid attack, smooth exponential decay to avoid clicky sounds
+      const t = audioCtx.currentTime + startTime;
+      gainNode.gain.setValueAtTime(0, t);
+      gainNode.gain.linearRampToValueAtTime(volume, t + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, t + duration);
+      
+      osc1.start(t);
+      osc1.stop(t + duration);
+      osc2.start(t);
+      osc2.stop(t + duration);
     };
 
-    // Play 3 high-pitch digital beeps
-    playSingleBeep(0, 1000, 0.15);
-    playSingleBeep(0.25, 1000, 0.15);
-    playSingleBeep(0.5, 1000, 0.3);
+    // Ascending arpeggio sequence
+    playChimeNote(0, 523.25, 0.4, 0.2);     // C5 note
+    playChimeNote(0.2, 659.25, 0.4, 0.2);   // E5 note
+    playChimeNote(0.4, 784.00, 0.8, 0.3);   // G5 note
+    playChimeNote(0.4, 1046.50, 1.0, 0.15); // C6 chime overtone
   } catch (e) {
     console.error('AudioContext error', e);
   }
@@ -133,7 +159,7 @@ export default function ExerciseDetail() {
       if (remaining <= 0) {
         setTimerActive(false);
         setTimerEndTime(null);
-        playBeepSequence();
+        playRestTimerAlert();
         clearInterval(interval);
       }
     }, 200);
@@ -150,6 +176,13 @@ export default function ExerciseDetail() {
   const handleToggleSetComplete = (index) => {
     // Unlock Audio Context on user click for mobile browsers
     unlockAudio();
+
+    // Subtle 40ms haptic feedback vibrate when completing a set
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(40);
+      } catch (e) {}
+    }
 
     const updatedCompleted = { ...completedSets };
     const isNowComplete = !updatedCompleted[index];
@@ -460,7 +493,13 @@ export default function ExerciseDetail() {
                 </div>
                 <p className="text-[10px] text-gray-400 mt-1">Get ready for Set {Object.values(completedSets).filter(Boolean).length + 1}!</p>
               </div>
-              <Volume2 className="w-8 h-8 text-[#00E5FF]/40 stroke-[1.5] animate-bounce" />
+              <button
+                onClick={playRestTimerAlert}
+                className="p-2 rounded-2xl bg-white/5 hover:bg-[#00E5FF]/15 text-[#00E5FF]/60 hover:text-[#00E5FF] border border-white/5 hover:border-[#00E5FF]/30 transition-all shadow-md active:scale-95 flex items-center justify-center"
+                title="Test Alert Chime & Vibration"
+              >
+                <Volume2 className="w-5 h-5 stroke-[1.5] animate-pulse" />
+              </button>
             </div>
 
             {/* Progress bar */}
