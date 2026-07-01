@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Plus, Trash2, Save, Sparkles, Trophy, CheckCircle2, Timer, Bell, RotateCcw, X, Check, Volume2 } from 'lucide-react';
@@ -10,10 +10,10 @@ import { useAuthStore } from '../context/useAuthStore';
 
 // Web Audio API Synthesizer for a rich, premium chime sound + phone vibration
 const playRestTimerAlert = () => {
-  // 1. Trigger Vibration (3 pulses: vibrate 300ms, pause 150ms, vibrate 300ms, pause 150ms, vibrate 300ms)
+  // 1. Trigger Vibration (3 intense pulses: vibrate 600ms, pause 150ms, vibrate 600ms, pause 150ms, vibrate 600ms)
   if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
     try {
-      navigator.vibrate([300, 150, 300, 150, 300]);
+      navigator.vibrate([600, 150, 600, 150, 600]);
     } catch (e) {
       console.warn('Vibration API blocked or not supported:', e);
     }
@@ -83,6 +83,31 @@ export default function ExerciseDetail() {
   const { groupId, exerciseId } = useParams();
   const { unit } = useAuthStore();
 
+  const wakeLockRef = useRef(null);
+
+  const requestWakeLock = async () => {
+    try {
+      if (typeof navigator !== 'undefined' && 'wakeLock' in navigator && !wakeLockRef.current) {
+        wakeLockRef.current = await navigator.wakeLock.request('screen');
+        console.log('Screen Wake Lock acquired');
+      }
+    } catch (err) {
+      console.warn('Wake Lock request failed:', err);
+    }
+  };
+
+  const releaseWakeLock = async () => {
+    if (wakeLockRef.current) {
+      try {
+        await wakeLockRef.current.release();
+        wakeLockRef.current = null;
+        console.log('Screen Wake Lock released');
+      } catch (err) {
+        console.error('Error releasing wake lock:', err);
+      }
+    }
+  };
+
   const [exercise, setExercise] = useState(null);
   const [suggestion, setSuggestion] = useState(null);
   const [stats, setStats] = useState(null);
@@ -148,7 +173,13 @@ export default function ExerciseDetail() {
 
   // Rest Timer background-safe ticking logic
   useEffect(() => {
-    if (!timerActive || !timerEndTime) return;
+    if (!timerActive || !timerEndTime) {
+      releaseWakeLock();
+      return;
+    }
+
+    // Request screen wake lock to keep the display on while counting down
+    requestWakeLock();
 
     const interval = setInterval(() => {
       const now = Date.now();
@@ -166,6 +197,37 @@ export default function ExerciseDetail() {
 
     return () => clearInterval(interval);
   }, [timerActive, timerEndTime]);
+
+  // Handle page visibility changes (locked/unlocked screen catch-up)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && timerActive && timerEndTime) {
+        const now = Date.now();
+        if (now >= timerEndTime) {
+          // Timer finished while phone was locked/inactive
+          setTimerActive(false);
+          setTimerEndTime(null);
+          setTimerSecondsLeft(0);
+          playRestTimerAlert();
+        } else {
+          // Re-acquire wake lock if returning to the app and timer is still active
+          requestWakeLock();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [timerActive, timerEndTime]);
+
+  // Clean up wake lock on component unmount
+  useEffect(() => {
+    return () => {
+      releaseWakeLock();
+    };
+  }, []);
 
   const startRestTimer = (seconds) => {
     setTimerSecondsLeft(seconds);
